@@ -2,7 +2,6 @@ import 'dart:io';
 
 import 'package:dcli/dcli.dart';
 
-
 /// Docker functions
 void installDocker() {
   if (which('docker').found) {
