@@ -76,6 +76,10 @@ bool isPostgresRunning(DbSettings dbSettings) {
       "psql --host=${dbSettings.host} --port=${dbSettings.port} -c 'select 42424242;' -q -t -U postgres"
           .toList(nothrow: true);
 
+  if (results.first.contains('password authentication failed')) {
+    throw Exception('Invalid password. Check your .settings.yaml');
+  }
+
   return results.first.contains('42424242');
 }
 
