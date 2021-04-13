@@ -1,17 +1,11 @@
 name: conduit_common_test
 version: 2.0.0-b1
-description: A collection of classes and function used for testing conduit and by the conduit test harness.
 homepage: https://conduit.io
-documentation:
-
-environment:
+description: A collection of classes and function used for testing conduit and by the conduit test harness.
+environment: 
   sdk: '>=2.12.0 <3.0.0'
-
-dependencies:
-  # temporary import until we can move some of the db related dependencies
-  # to a separate package.
+dependencies: 
   conduit: ^2.0.0-0
-
-dev_dependencies:
+dev_dependencies: 
   dcli: ^0.51.0
   settings_yaml: ^3.0.3
