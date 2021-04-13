@@ -67,6 +67,18 @@ void installPostgresClient() {
 
 bool isPostgresClientInstalled() => which('psql').found;
 
+/// Checks if the posgres service is running and excepting commands
+bool isPostgresRunning(DbSettings dbSettings) {
+  env['PGPASSWORD'] = dbSettings.password;
+
+  /// create user
+  final results =
+      "psql --host=${dbSettings.host} --port=${dbSettings.port} -c 'select 42424242;' -q -t -U postgres"
+          .toList(nothrow: true);
+
+  return results.first.contains('42424242');
+}
+
 void startPostgresDaemon() {
   print('Starting docker postgres image');
   'docker-compose up -d'.run;
@@ -81,32 +93,41 @@ void configurePostgress(DbSettings dbSettings,
     {required bool useDockerContainer}) {
   if (!useDockerContainer) {
     print(
-        'As you have selected to use your own postgres server we can automatically create the unit test db.');
+        'As you have selected to use your own postgres server, we can automatically create the unit test db.');
     if (confirm(
         'Do you want the conduit test database ${dbSettings.dbName}  created?')) {
-      /// create user
-      "psql --host=${dbSettings.host} --port=${dbSettings.port} -c 'create user ${dbSettings.username} with createdb;' -U postgres"
-          .run;
-
-      /// set password
-      '''psql --host=${dbSettings.host} --port=${dbSettings.port} -c 'alter user ${dbSettings.username} with password "${dbSettings.password}";' -U postgres'''
-          .run;
-
-      /// create db
-      "psql ---host=${dbSettings.host} -port=${dbSettings.port} -c 'create database ${dbSettings.dbName};' -U postgres"
-          .run;
-
-      /// grante permissions
-      env['PGPASSWORD'] = dbSettings.password;
-      "psql --host=${dbSettings.host} --port=${dbSettings.port} -c 'grant all on database ${dbSettings.dbName} to ${dbSettings.username};' -U postgres "
-          .run;
+      createPostgresDb(dbSettings);
     }
   } else {
-    print('Granting access to db');
-    env['PGPASSWORD'] = dbSettings.password;
-    "psql --host=${dbSettings.host} --port=${dbSettings.port} -c 'grant all on database ${dbSettings.dbName} to ${dbSettings.username};' -U ${dbSettings.username} ${dbSettings.dbName}"
-        .run;
+    createPostgresDb(dbSettings);
   }
+}
+
+void createPostgresDb(DbSettings dbSettings) {
+  print('Creating database');
+
+  final save = Settings().isVerbose;
+  Settings().setVerbose(enabled: false);
+  env['PGPASSWORD'] = dbSettings.password;
+  Settings().setVerbose(enabled: save);
+
+  /// create user
+  "psql --host=${dbSettings.host} --port=${dbSettings.port} -c 'create user ${dbSettings.username} with createdb;' -U postgres"
+      .run;
+
+  /// set password
+  Settings().setVerbose(enabled: false);
+  '''psql --host=${dbSettings.host} --port=${dbSettings.port} -c "alter user ${dbSettings.username} with password '${dbSettings.password}';" -U postgres'''
+      .run;
+  Settings().setVerbose(enabled: save);
+
+  /// create db
+  "psql --host=${dbSettings.host} --port=${dbSettings.port} -c 'create database ${dbSettings.dbName};' -U postgres"
+      .run;
+
+  /// grant permissions
+  "psql --host=${dbSettings.host} --port=${dbSettings.port} -c 'grant all on database ${dbSettings.dbName} to ${dbSettings.username};' -U postgres "
+      .run;
 }
 
 bool isPostgresDaemonInstalled() {
