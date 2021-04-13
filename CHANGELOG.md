@@ -1,3 +1,7 @@
+# 2.0.0-b2
+cleaned up readme. Incremented version no.
+Fixed configuratoin of unit test postgres user.
+
 # 2.0.0-b1
 The dcli and settings_yaml actually need to be dependencies. In conduit common_test is a dev dependency so these will still unlitmatly be dev dependencies.
 Added linting.
