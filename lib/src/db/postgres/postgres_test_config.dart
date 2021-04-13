@@ -22,11 +22,11 @@ import 'db_settings.dart';
 /// exist then the default value is used.
 ///
 /// Default values are contained in:
-/// [defaultHost]
-/// [defaultPort]
-/// [defaultUsername]
-/// [defaultPassword]
-/// [defaultDbName]
+/// [DbSettings.defaultHost]
+/// [DbSettings.defaultPort]
+/// [DbSettings.defaultUsername]
+/// [DbSettings.defaultPassword]
+/// [DbSettings.defaultDbName]
 ///
 class PostgresTestConfig {
   factory PostgresTestConfig() => _self;
@@ -34,12 +34,6 @@ class PostgresTestConfig {
   PostgresTestConfig._internal();
 
   static late final PostgresTestConfig _self = PostgresTestConfig._internal();
-
-  static const defaultHost = 'localhost';
-  static const defaultPort = 15432;
-  static const defaultUsername = 'conduit_test_user';
-  static const defaultPassword = '34achfAdce';
-  static const defaultDbName = 'conduit_test_db';
 
   String get connectionUrl =>
       "postgres://$username:$password@$host:$port/$dbName";
@@ -68,12 +62,12 @@ class PostgresTestConfig {
           username, password, host, port, dbName);
 
   Future<ManagedContext> contextWithModels(List<Type> instanceTypes) async {
-    var persistentStore =
+    final persistentStore =
         PostgreSQLPersistentStore(username, password, host, port, dbName);
 
-    var dataModel = ManagedDataModel(instanceTypes);
-    var commands = commandsFromDataModel(dataModel, temporary: true);
-    var context = ManagedContext(dataModel, persistentStore);
+    final dataModel = ManagedDataModel(instanceTypes);
+    final commands = commandsFromDataModel(dataModel, temporary: true);
+    final context = ManagedContext(dataModel, persistentStore);
 
     for (var cmd in commands) {
       await persistentStore.execute(cmd);
@@ -84,8 +78,8 @@ class PostgresTestConfig {
 
   List<String> commandsFromDataModel(ManagedDataModel dataModel,
       {bool temporary = false}) {
-    var targetSchema = Schema.fromDataModel(dataModel);
-    var builder = SchemaBuilder.toSchema(
+    final targetSchema = Schema.fromDataModel(dataModel);
+    final builder = SchemaBuilder.toSchema(
         PostgreSQLPersistentStore(null, null, null, port, null), targetSchema,
         isTemporary: temporary);
     return builder.commands;
@@ -93,7 +87,7 @@ class PostgresTestConfig {
 
   List<String> commandsForModelInstanceTypes(List<Type> instanceTypes,
       {bool temporary = false}) {
-    var dataModel = ManagedDataModel(instanceTypes);
+    final dataModel = ManagedDataModel(instanceTypes);
     return commandsFromDataModel(dataModel, temporary: temporary);
   }
 
@@ -115,7 +109,7 @@ class PostgresTestConfig {
       /// Check for an environment variable.
       const _key = 'POSTGRES_PORT';
       if (Platform.environment.containsKey(_key)) {
-        var value = Platform.environment[_key];
+        final value = Platform.environment[_key];
         if (value != null) {
           _port = int.tryParse(value);
         }
@@ -124,7 +118,7 @@ class PostgresTestConfig {
               "The Environment Variable $_key does not contain a valid integer. Found: $value");
         }
       } else {
-        _port = defaultPort;
+        _port = DbSettings.defaultPort;
       }
     }
     return _port!;
@@ -133,21 +127,22 @@ class PostgresTestConfig {
   late final DbSettings _dbSettings = DbSettings.load();
 
   String? _host;
-  String get host => _host ??= _initialise('POSTGRES_HOST', defaultHost);
+  String get host => _host ??= _fromEnv('POSTGRES_HOST') ?? _dbSettings.host;
 
   String? _username;
   String get username =>
-      _username ??= _initialise('POSTGRES_USER', defaultUsername);
+      _username ??= _fromEnv('POSTGRES_USER') ?? _dbSettings.username;
 
   String? _password;
   String get password =>
-      _password ??= _initialise('POSTGRES_PASSWORD', defaultPassword);
+      _password ??= _fromEnv('POSTGRES_PASSWORD') ?? _dbSettings.password;
 
   String? _dbName;
-  String get dbName => _dbName ??= _initialise('POSTGRES_DB', defaultDbName);
+  String get dbName =>
+      _dbName ??= _fromEnv('POSTGRES_DB') ?? _dbSettings.dbName;
 
-  String _initialise(String key, String defaultValue) {
-    var value = defaultValue;
+  String? _fromEnv(String key) {
+    String? value;
 
     /// Check for an environment variable.
     if (Platform.environment.containsKey(key)) {
@@ -160,6 +155,7 @@ class PostgresTestConfig {
             "The Environment Variable $key does not contain a valid String. Found null or an empty string.");
       }
     }
+
     return value;
   }
 }

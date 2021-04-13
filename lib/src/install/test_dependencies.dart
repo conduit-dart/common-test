@@ -85,37 +85,37 @@ void configurePostgress(DbSettings dbSettings,
     if (confirm(
         'Do you want the conduit test database ${dbSettings.dbName}  created?')) {
       /// create user
-      "psql --host=${dbSettings.hostname} --port=${dbSettings.port} -c 'create user ${dbSettings.username} with createdb;' -U postgres"
+      "psql --host=${dbSettings.host} --port=${dbSettings.port} -c 'create user ${dbSettings.username} with createdb;' -U postgres"
           .run;
 
       /// set password
-      '''psql --host=${dbSettings.hostname} --port=${dbSettings.port} -c 'alter user ${dbSettings.username} with password "${dbSettings.password}";' -U postgres'''
+      '''psql --host=${dbSettings.host} --port=${dbSettings.port} -c 'alter user ${dbSettings.username} with password "${dbSettings.password}";' -U postgres'''
           .run;
 
       /// create db
-      "psql ---host=${dbSettings.hostname} -port=${dbSettings.port} -c 'create database ${dbSettings.dbName};' -U postgres"
+      "psql ---host=${dbSettings.host} -port=${dbSettings.port} -c 'create database ${dbSettings.dbName};' -U postgres"
           .run;
 
       /// grante permissions
       env['PGPASSWORD'] = dbSettings.password;
-      "psql --host=${dbSettings.hostname} --port=${dbSettings.port} -c 'grant all on database ${dbSettings.dbName} to ${dbSettings.username};' -U postgres "
+      "psql --host=${dbSettings.host} --port=${dbSettings.port} -c 'grant all on database ${dbSettings.dbName} to ${dbSettings.username};' -U postgres "
           .run;
     }
   } else {
     print('Granting access to db');
     env['PGPASSWORD'] = dbSettings.password;
-    "psql --host=${dbSettings.hostname} --port=${dbSettings.port} -c 'grant all on database ${dbSettings.dbName} to ${dbSettings.username};' -U ${dbSettings.username} ${dbSettings.dbName}"
+    "psql --host=${dbSettings.host} --port=${dbSettings.port} -c 'grant all on database ${dbSettings.dbName} to ${dbSettings.username};' -U ${dbSettings.username} ${dbSettings.dbName}"
         .run;
   }
 }
 
 bool isPostgresDaemonInstalled() {
   bool found = false;
-  var images = 'docker images'.toList(skipLines: 1);
+  final images = 'docker images'.toList(skipLines: 1);
 
   for (var image in images) {
     image = image.replaceAll('  ', ' ');
-    var parts = image.split(' ');
+    final parts = image.split(' ');
     if (parts.isNotEmpty && parts[0] == 'postgres') {
       found = true;
       break;

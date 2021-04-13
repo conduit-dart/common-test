@@ -6,7 +6,7 @@ class DbSettings {
       {required this.username,
       required this.password,
       required this.dbName,
-      required this.hostname,
+      required this.host,
       required this.port});
 
   DbSettings.load() {
@@ -21,43 +21,43 @@ class DbSettings {
   static const defaultHost = 'localhost';
   static const defaultPort = 15432;
 
-  static const keyPSQLUsername = 'POSTGRES_USER';
-  static const keyPSQLPassword = 'POSTGRES_PASSWORD';
+  static const keyPostgresUsername = 'POSTGRES_USER';
+  static const keyPostgresPassword = 'POSTGRES_PASSWORD';
   static const keyPSQLDbName = 'POSTGRES_DB';
-  static const keyPSQLPort = 'POSTGRES_PORT';
-  static const keyPSQLHostname = 'POSTGRES_HOSTNAME';
+  static const keyPostgresPort = 'POSTGRES_PORT';
+  static const keyPostgresHost = 'POSTGRES_HOST';
 
   late String username;
   late String password;
   late String dbName;
-  late String hostname;
+  late String host;
   late int port;
 
   void createEnvironmentVariables() {
-    env[keyPSQLHostname] = hostname;
-    env[keyPSQLPort] = '$port';
-    env[keyPSQLUsername] = username;
-    env[keyPSQLPassword] = password;
+    env[keyPostgresHost] = host;
+    env[keyPostgresPort] = '$port';
+    env[keyPostgresUsername] = username;
+    env[keyPostgresPassword] = password;
     env[keyPSQLDbName] = dbName;
   }
 
   void _load() {
-    var settings = SettingsYaml.load(pathToSettings: filePath);
+    final settings = SettingsYaml.load(pathToSettings: filePath);
 
-    username = settings[keyPSQLUsername] as String? ?? defaultUsername;
-    password = settings[keyPSQLPassword] as String? ?? defaultPassword;
+    username = settings[keyPostgresUsername] as String? ?? defaultUsername;
+    password = settings[keyPostgresPassword] as String? ?? defaultPassword;
     dbName = settings[keyPSQLDbName] as String? ?? defaultDbName;
-    hostname = settings[keyPSQLHostname] as String? ?? defaultHost;
-    port = settings[keyPSQLPort] as int? ?? defaultPort;
+    host = settings[keyPostgresHost] as String? ?? defaultHost;
+    port = settings[keyPostgresPort] as int? ?? defaultPort;
   }
 
   void save() {
-    var settings = SettingsYaml.load(pathToSettings: filePath);
+    final settings = SettingsYaml.load(pathToSettings: filePath);
 
-    settings[keyPSQLHostname] = hostname;
-    settings[keyPSQLPort] = '$port';
-    settings[keyPSQLUsername] = username;
-    settings[keyPSQLPassword] = password;
+    settings[keyPostgresHost] = host;
+    settings[keyPostgresPort] = '$port';
+    settings[keyPostgresUsername] = username;
+    settings[keyPostgresPassword] = password;
     settings[keyPSQLDbName] = dbName;
 
     settings.save();
