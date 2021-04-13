@@ -16,7 +16,7 @@ class DbSettings {
   static const filePath = '.settings.yaml';
 
   static const defaultUsername = 'conduit_test_user';
-  static const defaultPassword = '34achfAdce';
+  static const defaultPassword = 'conduit!';
   static const defaultDbName = 'conduit_test_db';
   static const defaultHost = 'localhost';
   static const defaultPort = 15432;
@@ -39,6 +39,15 @@ class DbSettings {
     env[keyPostgresUsername] = username;
     env[keyPostgresPassword] = password;
     env[keyPSQLDbName] = dbName;
+
+    print('Creating environment variables for db settings.');
+
+    print('$keyPostgresHost ${env[keyPostgresHost]}');
+    print('$keyPostgresPort = ${env[keyPostgresPort]}');
+    print('$keyPostgresUsername = ${env[keyPostgresUsername]}');
+    print('$keyPostgresPassword = ${env[keyPostgresPassword]}');
+    print('$keyPSQLDbName = ${env[keyPSQLDbName]}');
+    print('');
   }
 
   void _load() {
