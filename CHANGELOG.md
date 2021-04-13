@@ -1,3 +1,7 @@
+# 2.0.0-b3
+Added check for valid password when setting up unit tests.
+updated home page.
+
 # 2.0.0-b2
 cleaned up readme. Incremented version no.
 Fixed configuratoin of unit test postgres user.
