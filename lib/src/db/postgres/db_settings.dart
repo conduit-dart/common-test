@@ -20,18 +20,24 @@ class DbSettings {
   static const defaultDbName = 'conduit_test_db';
   static const defaultHost = 'localhost';
   static const defaultPort = 15432;
+  static const defaultUseContainer = true;
 
   static const keyPostgresUsername = 'POSTGRES_USER';
   static const keyPostgresPassword = 'POSTGRES_PASSWORD';
   static const keyPSQLDbName = 'POSTGRES_DB';
   static const keyPostgresPort = 'POSTGRES_PORT';
   static const keyPostgresHost = 'POSTGRES_HOST';
+  static const keyUseContainer = 'useContainer';
 
   late String username;
   late String password;
   late String dbName;
   late String host;
   late int port;
+
+  /// If true then we are using a docker postgres container
+  /// If false we are using a user supplied postgres daemon.
+  late bool useContainer;
 
   void createEnvironmentVariables() {
     env[keyPostgresHost] = host;
@@ -47,6 +53,8 @@ class DbSettings {
     print('$keyPostgresUsername = ${env[keyPostgresUsername]}');
     print('$keyPostgresPassword = ${env[keyPostgresPassword]}');
     print('$keyPSQLDbName = ${env[keyPSQLDbName]}');
+    print('$keyUseContainer = ${useContainer}');
+
     print('');
   }
 
@@ -58,6 +66,7 @@ class DbSettings {
     dbName = settings[keyPSQLDbName] as String? ?? defaultDbName;
     host = settings[keyPostgresHost] as String? ?? defaultHost;
     port = settings[keyPostgresPort] as int? ?? defaultPort;
+    useContainer = settings[keyUseContainer] as bool? ?? defaultUseContainer;
   }
 
   void save() {
@@ -68,6 +77,7 @@ class DbSettings {
     settings[keyPostgresUsername] = username;
     settings[keyPostgresPassword] = password;
     settings[keyPSQLDbName] = dbName;
+    settings[keyUseContainer] = useContainer;
 
     settings.save();
   }
