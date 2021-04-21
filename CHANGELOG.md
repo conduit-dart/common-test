@@ -1,3 +1,6 @@
+# 2.0.0-b5
+Upgraded to lastest dcli version.
+
 # 2.0.0-b4
 collected postgres related test managemenet functions into a single class.
 Updated default db password to the new one conduit!
